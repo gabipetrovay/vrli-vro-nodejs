@@ -1,0 +1,22 @@
+{
+  "name": "vrli-vro-nodejs",
+  "version": "0.0.1",
+  "description": "A simple NodeJS shim transforming vRLI alerts into vRO workflow calls.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gabipetrovay/vrli-vro-nodejs.git"
+  },
+  "author": "Gabriel Petrovay",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gabipetrovay/vrli-vro-nodejs/issues"
+  },
+  "dependencies": {
+    "request": "2.81.0",
+    "debug": "2.6.3"
+  }
+}
