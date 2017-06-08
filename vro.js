@@ -11,8 +11,71 @@ var config = require('./config');
 exports.executeWorkflow = function (vrliAlert, callback) {
     debug('vRLI alert:', JSON.stringify(vrliAlert));
 
+    // TODO for each message in alert
+    // TODO collect message.fields
+    var message = {};
+
+    // find the tenant name from the VM name
+    var vmName = message.fields.vc_vm_name;
+    var tenant = vmName.match(/^([a-zA-Z]+)([0-9]+)$/);
+    if (!tenant || !tenant[1]) {
+        return callback(new Error('Ivalid VM name: ' + vmName));
+    }
+    tenant = tenant[1].toLowerCase();
+
     var payload = {
-        // TODO
+        parameters: [
+            {
+                value: {
+                    string: {
+                        value: message.timestamp
+                    }
+                },
+                type: "string",
+                name: "timestamp",
+                scope: "local"
+            },
+            {
+                value: {
+                    string: {
+                        value: vmName
+                    }
+                },
+                type: "string",
+                name: "vmName",
+                scope: "local"
+            },
+            {
+                value: {
+                    string: {
+                        value: message.fields.vmw_vcenter_id
+                    }
+                },
+                type: "string",
+                name: "vmId",
+                scope: "local"
+            },
+            {
+                value: {
+                    string: {
+                        value: message.fields.vc_event_type
+                    }
+                },
+                type: "string",
+                name: "eventType",
+                scope: "local"
+            },
+            {
+                value: {
+                    string: {
+                        value: tenant
+                    }
+                },
+                type: "string",
+                name: "tenant",
+                scope: "local"
+            }
+        ]
     };
 
     sdk.alert.create(opsgenieAlert, buildOptions(), (err, alert) => {
@@ -21,15 +84,15 @@ exports.executeWorkflow = function (vrliAlert, callback) {
         return callback(null, alert);
     });
 
-    // TODO extract configurable parts
-    var url = 'https://dsrv00vrobsi.sccloudinfra.net:8281/vco/api/workflows/932fd175-7e2d-4485-bb4a-7c392a5a9a82/executions';
+    var url = 'https://' + config.vro.apiEndpointFqdn + ':' + config.vro.apiEndpointPort + '/vco/api/workflows/' + config.vro.workflowId + '/executions';
     debug('Requesting to vRO endpoint - URL: ' + url + ' POST body: ' + JSON.stringify(payload));
+    var authHeader = new Buffer(config.vro.username).toString('base64') + ':' + config.vro.password;
 
     request({
         method: 'POST',
         url: url,
         headers: {
-            'Authorization': 'Basic dGFhcGVnYTRAc2NjbG91ZGluZnJhLm5ldDpwbEc9MmxTQzI1MDVjcg=='
+            'Authorization': 'Basic ' + authHeader
         },
         json: true,
         body: payload
