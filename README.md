@@ -28,7 +28,7 @@ VRO_PASSWORD=myPassword \
 VRO_WORKFLOW_ID=123a456b-789c-012d-345e-6789f0000000 \
 node index.js
 ```
-## Debugging logging
+## Debug logging
 
 The NodeJS [debug](https://www.npmjs.com/package/debug) module is used to print debugging information. The following 3 debuggers have been defined:
 
