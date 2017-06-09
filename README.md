@@ -24,7 +24,7 @@ HTTPS_PORT=5614 \
 VRO_API_ENDPOINT_FQDN=dsrv00vrobsi.sccloudinfra.net \
 VRO_API_ENDPOINT_PORT=8281
 VRO_USERNAME=taauser1
-VRO_PASSWORD=myPassword node index.js
+VRO_PASSWORD=myPassword
 VRO_WORKFLOW_ID=123a456b-789c-012d-345e-6789f0000000 \
 node index.js
 ```
