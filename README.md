@@ -30,7 +30,7 @@ node index.js
 ```
 ## Debugging logging
 
-The NodeJS [https://www.npmjs.com/package/debug](debug) module is used to print debugging information. The following 3 debuggers have been defined:
+The NodeJS [debug](https://www.npmjs.com/package/debug) module is used to print debugging information. The following 3 debuggers have been defined:
 
 * `shim:http` for the HTTPS server requests
 * `shim:vro` for the vRLI alert conversion and vRO workflow API requests
@@ -54,4 +54,4 @@ To print all debugging information, including also dependencies, use:
 DEBUG=* ... node index.js
 ```
 
-For other `DEBUG` options, check [https://www.npmjs.com/package/debug](debug) module documentation.
+For other `DEBUG` options, check [debug](https://www.npmjs.com/package/debug) module documentation.
