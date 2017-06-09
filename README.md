@@ -23,8 +23,35 @@ HTTPS_SERVER_PEM_FILE=server.pem \
 HTTPS_PORT=5614 \
 VRO_API_ENDPOINT_FQDN=dsrv00vrobsi.sccloudinfra.net \
 VRO_API_ENDPOINT_PORT=8281
-VRO_USERNAME=taapega4
-VRO_PASSWORD=plG=2lSCcr node index.js
+VRO_USERNAME=taauser1
+VRO_PASSWORD=myPassword node index.js
 VRO_WORKFLOW_ID=123a456b-789c-012d-345e-6789f0000000 \
 node index.js
 ```
+## Debugging logging
+
+The NodeJS [https://www.npmjs.com/package/debug](debug) module is used to print debugging information. The following 3 debuggers have been defined:
+
+* `shim:http` for the HTTPS server requests
+* `shim:vro` for the vRLI alert conversion and vRO workflow API requests
+* `shim:config` for configuration debug information
+
+To debug a certain module (e.g. `index.js`) use:
+
+```
+DEBUG=shim:http ... node index.js
+```
+
+To print all debugging information in this webhook implementation, use:
+
+```
+DEBUG=shim:* ... node index.js
+```
+
+To print all debugging information, including also dependencies, use:
+
+```
+DEBUG=* ... node index.js
+```
+
+For other `DEBUG` options, check [https://www.npmjs.com/package/debug](debug) module documentation.
