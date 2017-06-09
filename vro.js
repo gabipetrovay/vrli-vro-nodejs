@@ -19,11 +19,11 @@ exports.executeWorkflow = function (vrliAlert, callback) {
     var count = messages.length;
 
     if (!count) {
-        return callback({ errors: errors });
+        return callback(errors);
     }
 
     // an alert may contain multiple messages
-    messages.forEach(function (message) {
+    messages.forEach(function (message, index) {
 
         debug('vRLI message: %o', message);
 
@@ -63,29 +63,30 @@ exports.executeWorkflow = function (vrliAlert, callback) {
         };
 
         var url = 'https://' + config.vro.apiEndpointFqdn + ':' + config.vro.apiEndpointPort + '/vco/api/workflows/' + config.vro.workflowId + '/executions';
-        debug('Sending request to vRO endpoint - URL: %s - POST body: ', url, payload);
+        debug('Sending request to vRO endpoint - URL: %s - POST body: %o', url, payload);
         var authHeader = new Buffer(config.vro.username).toString('base64') + ':' + config.vro.password;
+        (index => {
+            request({
+                method: 'POST',
+                url: url,
+                headers: {
+                    'Authorization': 'Basic ' + authHeader
+                },
+                json: true,
+                body: payload
+            }, (err, response, body) => {
 
-        request({
-            method: 'POST',
-            url: url,
-            headers: {
-                'Authorization': 'Basic ' + authHeader
-            },
-            json: true,
-            body: payload
-        }, (err, response, body) => {
+                if (err) {
+                    errors.push('Failed to send vRLI alert message at index ' + index + ': ' + err.toString());
+                } else if (!response || response.statusCode !== 202) {
+                    errors.push('Failed to send vRLI alert message at index ' + index + ': ' + (body || 'did not receive a response with status 202 from vRO'));
+                }
 
-            if (err) {
-                errors.push(err.toString());
-            } else if (!response || response.statusCode !== 202) {
-                errors.push(body || 'Did not receive a response with status 202 from vRO');
-            }
-
-            if (--count === 0) {
-                callback(errors.length ? { errors: errors } : null);
-            }
-        });
+                if (--count === 0) {
+                    callback(errors.length ? errors : null);
+                }
+            });
+        })(index);
     });
 };
 
@@ -94,14 +95,11 @@ function prepareAlert (vrliAlert) {
     var messages = [];
     var errors = [];
 
-    if (!vrliAlert.messages || !vrliAlert.messages.length) {
-        return callback('Invalid vRLI alert. Expecting at least one message.');
-    }
-
     vrliAlert.messages.forEach(function (message, index) {
 
-        if (!message.fields) {
-            errors.push('Invalid vRLI alert message: the message at index ' + index + ' should not have a empty array of fields.');
+        var errorPrefix = 'Invalid vRLI alert message at index ' + index + ': ';
+        if (!message.fields || !message.fields.length) {
+            errors.push(errorPrefix + 'the message should not have a empty field array');
             return;
         }
 
@@ -115,21 +113,21 @@ function prepareAlert (vrliAlert) {
         // check the VM name
         var vmName = message.fields['vc_vm_name'];
         if (!vmName) {
-            errors.push('Invalid vRLI alert message: the message at index ' + index + ' does not have a VM name (vc_vm_name)');
+            errors.push(errorPrefix + ' the message does not have a VM name field (vc_vm_name)');
             return;
         }
 
         // find the tenant name from the VM name and save it as a field
         var tenant = vmName.match(/^([a-zA-Z]+)([0-9]+)$/);
         if (!tenant || !tenant[1]) {
-            errors.push('Invalid vRLI alert message: the message at index ' + index + ' does not have a valid VM name: ' + vmName);
+            errors.push(errorPrefix + ' could not extract tenant name from the message VM name field (vc_vm_name): ' + vmName);
             return;
         }
         message.fields['tenant'] = tenant[1].toLowerCase();
 
         // check the vCenter VM ID
         if (!message.fields['vmw_vcenter_id']) {
-            errors.push('Invalid vRLI alert message: the message at index ' + index + ' does not have a valid vCenter VM ID (vmw_vcenter_id)');
+            errors.push(errorPrefix + ' the message does not have a valid vCenter VM ID field (vmw_vcenter_id)');
             return;
         }
 

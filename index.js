@@ -32,7 +32,7 @@ https.createServer(config.https, (req, res) => {
             debug('HTTP body: %s', body);
             req.body = JSON.parse(body);
         } catch (err) {
-            return sendResponse(res, 500, err);
+            return sendResponse(res, 400, err);
         }
 
         postHandler(req, res);
@@ -44,14 +44,19 @@ function postHandler (req, res) {
     var statusCode = 200;
     var vrliAlert = req.body;
 
-    debug('New vRLI alert: %s  (%s)', vrliAlert.Url, vrliAlert.AlertName);
+    if (!vrliAlert.messages || !vrliAlert.messages.length) {
+        return sendResponse(res, 400, { error: 'Invalid vRLI alert. Expecting at least one message.' });
+    }
+
+    var messageCount = vrliAlert.messages.length;
+    debug('New vRLI alert: %s  (%s) containing %d messages', vrliAlert.Url, vrliAlert.AlertName, messageCount);
 
     vro.executeWorkflow(vrliAlert, err => {
-        if (err) {
-
-            return sendResponse(res, 500, err);
+        var statusCode = 200;
+        if (err.length) {
+            statusCode = 500;
         }
-        return sendResponse(res, statusCode);
+        return sendResponse(res, statusCode, statusCode !== 200 ? err : { status: 'All messages submitted successfully' });
     });
 }
 
