@@ -73,6 +73,7 @@ exports.executeWorkflow = function (vrliAlert, callback) {
                     'Authorization': 'Basic ' + authHeader
                 },
                 json: true,
+                strictSSL: false,
                 body: payload
             }, (err, response, body) => {
 
