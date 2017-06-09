@@ -1,4 +1,4 @@
-var debug = require('debug')('config');
+var debug = require('debug')('shim:config');
 
 var fs = require('fs');
 
