@@ -53,7 +53,7 @@ function postHandler (req, res) {
 
     vro.executeWorkflow(vrliAlert, err => {
         var statusCode = 200;
-        if (err.length) {
+        if (err) {
             statusCode = 500;
         }
         return sendResponse(res, statusCode, statusCode !== 200 ? err : { status: 'All messages submitted successfully' });
