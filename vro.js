@@ -64,7 +64,7 @@ exports.executeWorkflow = function (vrliAlert, callback) {
 
         var url = 'https://' + config.vro.apiEndpointFqdn + ':' + config.vro.apiEndpointPort + '/vco/api/workflows/' + config.vro.workflowId + '/executions';
         debug('Sending request to vRO endpoint - URL: %s - POST body: %o', url, payload);
-        var authHeader = new Buffer(config.vro.username).toString('base64') + ':' + config.vro.password;
+        var authHeader = new Buffer(config.vro.username + ':' + config.vro.password).toString('base64');
         (index => {
             request({
                 method: 'POST',
