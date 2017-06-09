@@ -18,7 +18,7 @@ https.createServer(config.https, (req, res) => {
 
     req.on('end', () => {
 
-        debug('HTTP headers: ' + JSON.stringify(req.headers));
+        debug('HTTP headers: %o', req.headers);
 
         if (req.method !== 'POST') {
             return sendResponse(res, 400, 'Invalid request method: ' + req.method + '. This shim only supports POST requests.');
@@ -29,7 +29,7 @@ https.createServer(config.https, (req, res) => {
         }
 
         try {
-            debug('HTTP body: ' + body);
+            debug('HTTP body: %s', body);
             req.body = JSON.parse(body);
         } catch (err) {
             return sendResponse(res, 500, err);
@@ -38,16 +38,19 @@ https.createServer(config.https, (req, res) => {
         postHandler(req, res);
     });
 }).listen(config.https, config.https.port);
-debug('Listening on port: ' + config.https.port);
+debug('Listening on port: %d', config.https.port);
 
 function postHandler (req, res) {
     var statusCode = 200;
     var vrliAlert = req.body;
 
-    console.log('New vRLI alert: ' + vrliAlert.alertId + ' (' + vrliAlert.alertName + ')');
+    debug('New vRLI alert: %s  (%s)', vrliAlert.Url, vrliAlert.AlertName);
 
     vro.executeWorkflow(vrliAlert, err => {
-        if (err) { return sendResponse(res, 500, err); }
+        if (err) {
+
+            return sendResponse(res, 500, err);
+        }
         return sendResponse(res, statusCode);
     });
 }
@@ -59,7 +62,7 @@ function sendResponse (res, statusCode, response) {
         }
         response = JSON.stringify(response);
     }
-    debug(statusCode >= 300 ? 'Error:' : 'Response:', statusCode, response);
+    debug(statusCode >= 300 ? 'Error: %d %o' : 'Response: %d %o', statusCode, response);
     res.writeHead(statusCode);
     res.end(response);
 }
