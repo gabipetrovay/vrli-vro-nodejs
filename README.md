@@ -1,3 +1,7 @@
+## Disclaimer
+
+This repository is only a POC (example) of how you can build a shim between vRLI and vRO. The commited `server.pem` is only meant for demo purposes such that you clone and run this code. If you want to use this code or fragments of it in production, you **should replace** this file with your own version.
+
 # vRealize Log Insight (vRLI) Shim for vRealize Orchestrator (vRO)
 
 A simple NodeJS shim transforming vRLI alerts into vRO workflow calls. The shim is implemented using the NodeJS HTTPS server.
